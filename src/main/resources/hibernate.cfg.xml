@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.url">jdbc:mysql://localhost/mmsdb</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.username">niloy</property>
+        <property name="connection.password">niloy940</property>
+
+        <!-- DB schema will be updated if needed -->
+         <property name="hbm2ddl.auto">update</property>
+
+        <mapping class="com.niloy.mms.model.accounts.Account"></mapping>
+        <mapping class="com.niloy.mms.model.Name"></mapping>
+        <mapping class="com.niloy.mms.model.Transactions"></mapping>
+        <mapping class="com.niloy.mms.model.Meal"></mapping>
+    </session-factory>
+</hibernate-configuration>
