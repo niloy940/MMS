@@ -364,7 +364,7 @@ public class Controller implements Initializable {
         try {
             transactionHibernate = session.beginTransaction();
 
-            Account account = accountComboBox.getSelectionModel().getSelectedItem();
+            Account account = accountComboBoxMeal.getSelectionModel().getSelectedItem();
             LocalDate mealDate = mealDatePicker.getValue();
             LocalTime mealTime = LocalTime.parse(mealTimeField.getText());
             int amount = Integer.parseInt(mealAmount.getText());

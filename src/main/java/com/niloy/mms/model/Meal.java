@@ -14,17 +14,17 @@ public class Meal {
     private int mealId;
     @ManyToOne
     private Account account;
-    private LocalDate localDate;
-    private LocalTime localTime;
+    private LocalDate mealDate;
+    private LocalTime mealTime;
     private int amount;
 
     public Meal() {
     }
 
-    public Meal(Account account, LocalDate localDate, LocalTime localTime, int amount) {
+    public Meal(Account account, LocalDate mealDate, LocalTime mealTime, int amount) {
         this.account = account;
-        this.localDate = localDate;
-        this.localTime = localTime;
+        this.mealDate = mealDate;
+        this.mealTime = mealTime;
         this.amount = amount;
     }
 
@@ -32,24 +32,29 @@ public class Meal {
         return account;
     }
 
-    public LocalDate getLocalDate() {
-        return localDate;
+    public LocalDate getMealDate() {
+        return mealDate;
     }
 
-    public LocalTime getLocalTime() {
-        return localTime;
+    public LocalTime getMealTime() {
+        return mealTime;
     }
 
     public int getAmount() {
         return amount;
     }
 
+    public int getAccountNumber(){
+        return account.getAccountNumber();
+    }
+
     @Override
     public String toString() {
         return "Meal{" +
+                "accountNumber" + account.getAccountNumber() +
                 "account=" + account +
-                ", localDate=" + localDate +
-                ", localTime=" + localTime +
+                ", localDate=" + mealDate +
+                ", localTime=" + mealTime +
                 ", amount=" + amount +
                 '}';
     }

@@ -8,7 +8,6 @@ import java.time.LocalTime;
 
 @Entity
 public class Transactions {
-//    private int accountNumber;
     @Id
     @GeneratedValue
     @Column(name = "t_Id", nullable = false, columnDefinition = "INT(11) UNSIGNED")
@@ -31,19 +30,6 @@ public class Transactions {
         this.amount = amount;
     }
 
-    /*public Transactions(int accountNumber, Account account, TransactionType transactionType, LocalDate transactionDate, LocalTime transactionTime, double amount) {
-        this.accountNumber = accountNumber;
-        this.account = account;
-        this.transactionType = transactionType;
-        this.transactionDate = transactionDate;
-        this.transactionTime = transactionTime;
-        this.amount = amount;
-    }*/
-
-    /*public int getAccountNumber() {
-        return accountNumber;
-    }
-*/
     public Account getAccount() {
         return account;
     }
