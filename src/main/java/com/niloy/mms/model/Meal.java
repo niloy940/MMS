@@ -44,10 +44,6 @@ public class Meal {
         return amount;
     }
 
-    public int getAccountNumber(){
-        return account.getAccountNumber();
-    }
-
     @Override
     public String toString() {
         return "Meal{" +

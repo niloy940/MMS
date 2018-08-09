@@ -122,6 +122,39 @@ public class Controller implements Initializable {
     @FXML
     private TableColumn<Transactions, Double> amountColumn;
 
+    @FXML
+    private TextField depositeTextField;
+
+    @FXML
+    private TextField totalmealTextField;
+
+    @FXML
+    private TextField withdradTextField;
+
+    @FXML
+    private TextField mealRateTextField;
+
+    @FXML
+    private TextField extraTextField;
+
+    @FXML
+    private ComboBox<Account> accountComboBoxCalc;
+
+    @FXML
+    private Label depositeLable;
+
+    @FXML
+    private Label mealLable;
+
+    @FXML
+    private Label costLable;
+
+    @FXML
+    private Label getLable;
+
+    @FXML
+    private Label payLable;
+
     private ObservableList<Account> accountObservableList;
     private ObservableList<Account> filteredAccountObservableList;
     private ObservableList<TransactionType> transactionTypeList;
@@ -171,6 +204,8 @@ public class Controller implements Initializable {
         } catch (HibernateException he) {
             transactionHibernate.rollback();
             System.err.println(he);
+        } finally {
+            session.close();
         }
     }
 
@@ -282,6 +317,8 @@ public class Controller implements Initializable {
         } catch (HibernateException he) {
             transactionHibernate.rollback();
             System.err.println(he);
+        } finally {
+            session.close();
         }
         searchFieldHistory.clear();
     }
@@ -332,12 +369,15 @@ public class Controller implements Initializable {
                 account.withdraw(amount);
                 informationAlert("Transaction", "Withdraw Sucsessful!\n\nOld Balance : " + oldBalance + "\nWithdrawal Amount : " + amount + "\nNew Balance : " + account.getBalance());
             }
+            session.update(account);
             session.save(transactions);
             transactionHibernate.commit();
 
         } catch (HibernateException he) {
             transactionHibernate.rollback();
             System.err.println(he);
+        } finally {
+            session.close();
         }
     }
 
@@ -394,6 +434,39 @@ public class Controller implements Initializable {
     @FXML
     void handleMealKeyFilterAction(KeyEvent event) {
         filter(searchFieldMeal.getText().toLowerCase());
+    }
+
+
+    @FXML
+    void handleCalcAccountClickAction(MouseEvent event) {
+        filteredAccountObservableList.sort(Comparator.comparing(Account::getAccountNumber));
+    }
+
+    @FXML
+    void handleCalcShowAction(ActionEvent event) {
+        /*SessionFactory sessionFactory = HibernateSingleton.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transactionHibernate = null;
+        try {
+            transactionHibernate = session.beginTransaction();
+
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            CriteriaQuery<Account> criteriaQuery = criteriaBuilder.createQuery(Account.class);
+            criteriaQuery.from(Account.class);
+
+            List<Account> accountList = session.createQuery(criteriaQuery).list();
+
+
+        } catch (HibernateException he) {
+            transactionHibernate.rollback();
+            System.err.println(he);
+        }*/
+        transactionList.forEach(System.out::println);
+    }
+
+    @FXML
+    void handleCalcSubmitAction(ActionEvent event) {
+
     }
 
     private void clearForm() {
