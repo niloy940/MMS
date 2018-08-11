@@ -65,7 +65,7 @@ public class Account {
         return mealList;
     }
 
-    public void deposite(int amount){
+    public void deposit(int amount){
         if (amount > 0)
             balance += amount;
         else System.err.println("Depositing negative amount is not acceptable!");

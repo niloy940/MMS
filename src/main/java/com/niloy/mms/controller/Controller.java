@@ -3,6 +3,7 @@ package com.niloy.mms.controller;
 import com.niloy.mms.HibernateSingleton;
 import com.niloy.mms.model.*;
 import com.niloy.mms.model.accounts.Account;
+import com.sun.xml.internal.bind.v2.model.util.ArrayInfoUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,20 +13,18 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 public class Controller implements Initializable {
 
@@ -159,7 +158,7 @@ public class Controller implements Initializable {
     private ObservableList<Account> filteredAccountObservableList;
     private ObservableList<TransactionType> transactionTypeList;
     private ObservableList<Transactions> transactionList;
-    Account selectedAccount;
+    private Account selectedAccount;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -172,6 +171,7 @@ public class Controller implements Initializable {
         accountComboBox.setItems(filteredAccountObservableList);
         accountComboBoxMeal.setItems(filteredAccountObservableList);
         accountComboBoxHistory.setItems(filteredAccountObservableList);
+        accountComboBoxCalc.setItems(filteredAccountObservableList);
         tableView.setItems(transactionList);
 
         transactionTypeList.addAll(TransactionType.values());
@@ -363,7 +363,7 @@ public class Controller implements Initializable {
             double oldBalance = account.getBalance();
 
             if (transactionType == TransactionType.DEPOSITE) {
-                account.deposite(amount);
+                account.deposit(amount);
                 informationAlert("Transaction", "Deposite Successful!\n\nOld Balance : " + oldBalance + "\nDeposited Amount : " + amount + "\nNew Balance : " + account.getBalance());
             } else {
                 account.withdraw(amount);
@@ -444,29 +444,142 @@ public class Controller implements Initializable {
 
     @FXML
     void handleCalcShowAction(ActionEvent event) {
-        /*SessionFactory sessionFactory = HibernateSingleton.getSessionFactory();
+        SessionFactory sessionFactory = HibernateSingleton.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transactionHibernate = null;
         try {
             transactionHibernate = session.beginTransaction();
 
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<Account> criteriaQuery = criteriaBuilder.createQuery(Account.class);
-            criteriaQuery.from(Account.class);
+            //total deposit
+            String hqlDeposit = "select amount from Transactions where transactionType=0";
+            Query queryDeposit = session.createQuery(hqlDeposit);
+            List<Double> depositAmount = ((org.hibernate.query.Query) queryDeposit).list();
 
-            List<Account> accountList = session.createQuery(criteriaQuery).list();
+            double sumDeposit = depositAmount.stream()
+                    .mapToDouble(a -> a)
+                    .sum();
 
+            depositeTextField.setText(sumDeposit + "");
 
+            //total withdraw
+            String hqlWithdraw = "select amount from Transactions where transactionType=1";
+            Query queryWithdraw = session.createQuery(hqlWithdraw);
+            List<Double> withdrawAmount = ((org.hibernate.query.Query) queryWithdraw).list();
+
+            double sumWithdraw = withdrawAmount
+                    .stream()
+                    .mapToDouble(a -> a)
+                    .sum();
+            withdradTextField.setText(sumWithdraw + "");
+
+            //extra
+            double extra = sumDeposit - sumWithdraw;
+            extraTextField.setText(extra + "");
+
+            //total meal
+            String hqlMeal = "select amount from Meal";
+            Query queryMeal = session.createQuery(hqlMeal);
+            List<Integer> mealAmount = ((org.hibernate.query.Query) queryMeal).list();
+
+            int sumMeal = mealAmount
+                    .stream()
+                    .mapToInt(a -> a)
+                    .sum();
+            totalmealTextField.setText(sumMeal + "");
+
+            //meal rate
+            double mealRate = sumWithdraw / sumMeal;
+            mealRateTextField.setText(mealRate + "");
+
+            transactionHibernate.commit();
         } catch (HibernateException he) {
             transactionHibernate.rollback();
             System.err.println(he);
-        }*/
-        transactionList.forEach(System.out::println);
+        } finally {
+            session.close();
+        }
     }
 
     @FXML
     void handleCalcSubmitAction(ActionEvent event) {
+        selectedAccount = accountComboBoxCalc.getSelectionModel().getSelectedItem();
 
+        SessionFactory sessionFactory = HibernateSingleton.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transactionHibernate = null;
+        try {
+            transactionHibernate = session.beginTransaction();
+
+            //deposit
+            String hqlSD = "select amount from Transactions where transactionType=0 and account.accountNumber = :id";
+            Query querySD = session.createQuery(hqlSD);
+            querySD.setParameter("id", selectedAccount.getAccountNumber());
+
+            List<Double> sdList = ((org.hibernate.query.Query) querySD).list();
+
+            double sumSD = sdList
+                    .stream()
+                    .mapToDouble(a -> a)
+                    .sum();
+            depositeLable.setText(sumSD + "");
+
+            //meal
+            String hqlSM = "select amount from Meal where account.accountNumber = :id";
+            Query querySM = session.createQuery(hqlSM);
+            querySM.setParameter("id", selectedAccount.getAccountNumber());
+
+            List<Integer> smList = ((org.hibernate.query.Query) querySM).list();
+
+            int sumSM = smList
+                    .stream()
+                    .mapToInt(a -> a)
+                    .sum();
+            mealLable.setText(sumSM + "");
+
+            //cost
+
+            //totalWithdraw
+            String hqlWithdraw = "select amount from Transactions where transactionType=1";
+            Query queryWithdraw = session.createQuery(hqlWithdraw);
+            List<Double> withdrawAmount = ((org.hibernate.query.Query) queryWithdraw).list();
+
+            double sumWithdraw = withdrawAmount
+                    .stream()
+                    .mapToDouble(a -> a)
+                    .sum();
+
+            //total meal
+            String hqlMeal = "select amount from Meal";
+            Query queryMeal = session.createQuery(hqlMeal);
+            List<Integer> mealAmount = ((org.hibernate.query.Query) queryMeal).list();
+
+            int sumMeal = mealAmount
+                    .stream()
+                    .mapToInt(a -> a)
+                    .sum();
+
+            double mealRate = sumWithdraw / sumMeal;
+
+            double cost = sumSM * mealRate;
+            costLable.setText(cost + "");
+
+            //Get
+            selectedAccount = accountComboBoxCalc.getSelectionModel().getSelectedItem();
+            if (sumSD > cost){
+                double get = sumSD - cost;
+                getLable.setText(get + "");
+            }
+            if (cost > sumSD){
+                double pay = cost - sumSD;
+                payLable.setText(pay + "");
+            }
+
+            transactionHibernate.commit();
+
+        } catch (HibernateException he) {
+            transactionHibernate.rollback();
+            System.err.println(he);
+        }
     }
 
     private void clearForm() {
